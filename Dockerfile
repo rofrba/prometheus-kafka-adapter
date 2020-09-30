@@ -1,4 +1,4 @@
-FROM golang:1.14.4-alpine3.11 as build
+FROM golang:1.14.9-alpine3.11 as build
 
 # Get prebuilt libkafka.
 # XXX stop using the edgecommunity channel once librdkafka 1.3.0+ is officially published
