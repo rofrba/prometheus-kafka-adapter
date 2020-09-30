@@ -79,9 +79,9 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 				m := e.(*kafka.Message)
 
 				if m.TopicPartition.Error != nil {
-					fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
+					logrus.WithError(err).Error("Delivery failed: %v\n", m.TopicPartition.Error)
 				} else {
-					fmt.Printf("Delivered message to topic %s [%d] at offset %v\n",
+					logrus.Info("Delivered message to topic %s [%d] at offset %v\n",
 							*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
 				}
 
