@@ -64,12 +64,14 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 		
 
 		for topic, metrics := range metricsPerTopic {
+			fmt.println("metrics 1")
 			t := topic
 			part := kafka.TopicPartition{
 				Partition: kafka.PartitionAny,
 				Topic:     &t,
 			}
 			for _, metric := range metrics {
+				fmt.println("metrics 2")
 				delivery_chan := make(chan kafka.Event, 10000)
 				err := producer.Produce(&kafka.Message{
 					TopicPartition: part,
