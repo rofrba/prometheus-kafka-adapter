@@ -60,6 +60,7 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 			logrus.WithError(err).Error("couldn't process write request")
 			return
 		}
+		
 
 		for topic, metrics := range metricsPerTopic {
 			t := topic
@@ -68,11 +69,23 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 				Topic:     &t,
 			}
 			for _, metric := range metrics {
+				delivery_chan := make(chan kafka.Event, 10000)
 				err := producer.Produce(&kafka.Message{
 					TopicPartition: part,
 					Value:          metric,
-				}, nil)
+				}, delivery_chan)
+				e := <-delivery_chan
+				m := e.(*kafka.Message)
 
+				if m.TopicPartition.Error != nil {
+					fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
+				} else {
+					fmt.Printf("Delivered message to topic %s [%d] at offset %v\n",
+							*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
+				}
+
+				close(delivery_chan)
+				
 				if err != nil {
 					c.AbortWithStatus(http.StatusInternalServerError)
 					logrus.WithError(err).Error("couldn't produce message in kafka")
