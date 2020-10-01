@@ -78,10 +78,11 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 				e := <-delivery_chan
 				m := e.(*kafka.Message)
 
-				if ev.TopicPartition.Error != nil {
-					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
+				if m.TopicPartition.Error != nil {
+					fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
 				} else {
-					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
+					fmt.Printf("Delivered message to topic %s [%d] at offset %v\n",
+							*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
 				}
 
 				close(delivery_chan)
