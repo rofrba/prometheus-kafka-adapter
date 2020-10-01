@@ -64,14 +64,12 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 		
 
 		for topic, metrics := range metricsPerTopic {
-			fmt.Println("metrics 1")
 			t := topic
 			part := kafka.TopicPartition{
 				Partition: kafka.PartitionAny,
 				Topic:     &t,
 			}
 			for _, metric := range metrics {
-				fmt.Println("metrics 2")
 				delivery_chan := make(chan kafka.Event, 10000)
 				err := producer.Produce(&kafka.Message{
 					TopicPartition: part,
@@ -80,10 +78,10 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 				e := <-delivery_chan
 				m := e.(*kafka.Message)
 
-				if m.TopicPartition.Error != nil {
-					logrus.WithError(err).Error("Error")
+				if ev.TopicPartition.Error != nil {
+					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
 				} else {
-					logrus.Info("OK")
+					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
 				}
 
 				close(delivery_chan)
