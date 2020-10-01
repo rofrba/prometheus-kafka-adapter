@@ -15,7 +15,7 @@
 package main
 
 import (
-	"fmt"
+	
 	"io/ioutil"
 	"net/http"
 
@@ -79,10 +79,9 @@ func receiveHandler(producer *kafka.Producer, serializer Serializer) func(c *gin
 				m := e.(*kafka.Message)
 
 				if m.TopicPartition.Error != nil {
-					fmt.Printf("Delivery failed: %v\n", m.TopicPartition.Error)
+					logrus.WithError(m.TopicPartition.Error).Error("Delivery failed")
 				} else {
-					fmt.Printf("Delivered message to topic %s [%d] at offset %v\n",
-							*m.TopicPartition.Topic, m.TopicPartition.Partition, m.TopicPartition.Offset)
+					logrus.Debug("Message OK")
 				}
 
 				close(delivery_chan)
